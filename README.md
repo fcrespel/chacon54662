@@ -8,11 +8,15 @@ To compile this program, make sure you have built and installed the [WiringPi](h
 
 Then execute `make` in the code directory and you should obtain the `send` program.
 
+The `send.sh` wrapper script makes use of `flock` to prevent concurrent calls using a file lock.
+
 ## Usage
 
-Connect a 433MHz transmitter to the GPIO 0 pin of the Raspberry Pi.
+Connect a 433MHz transmitter to the GPIO pin of your choice on a Raspberry Pi (see the [pin numbering](https://projects.drogon.net/raspberry-pi/wiringpi/pins/) documentation).
 
-Then execute `send <code word>` where the code word is a 24-bit binary code (see protocol and samples below).
+Then execute `./send.sh <gpio pin> <code word> [repeat count]` where the code word is a 24-bit binary code (see protocol and samples below).
+
+For example: `./send.sh 0 010111110010101011100011 3`
 
 ## Protocol
 
@@ -23,7 +27,7 @@ The Chacon 54662 protocol as emitted by the original remote control is made of:
 * 4 frames encoded with "A" timings
 * 4 frames encoded with "B" timings
 
-Each frame starts with a sync bit followed by :
+Each frame starts with a sync bit followed by 24 bits:
 
 * 4 bits static code 0101
 * 16 bits rotating code
@@ -38,10 +42,10 @@ Rotating codes likely depend on the remote control (see samples below), and each
 
 Socket codes:
 
-* A : 0011
-* B : 1010
-* C : 0001
-* D : 1000
+* A: 0011
+* B: 1010
+* C: 0001
+* D: 1000
 
 Timings observed during capture, in microseconds:
 
@@ -53,7 +57,7 @@ Bit 1 | 290 HIGH + 1250 LOW | 420 HIGH + 1120 LOW
 
 ## Samples
 
-The following codes have been captures from an original remote:
+The following codes have been captured from an original remote:
 
 | Button | ON | OFF |
 |--------|----|-----|
@@ -64,5 +68,5 @@ The following codes have been captures from an original remote:
 
 For example, use:
 
-* `send 010111110010101011100011` to simulate Button A ON
-* `send 010101100000010001000011` to simulate Button A OFF
+* `/send.sh 0 010111110010101011100011` to simulate Button A ON
+* `/send.sh 0 010101100000010001000011` to simulate Button A OFF

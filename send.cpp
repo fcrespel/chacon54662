@@ -3,34 +3,37 @@
 #include <stdio.h>
      
 int main(int argc, char *argv[]) {
-    // This pin is not the first pin on the RPi GPIO header!
-    // Consult https://projects.drogon.net/raspberry-pi/wiringpi/pins/
-    // for more information.
-    int PIN = 0;
-
     // If no command line argument is given, print the help text
-    if (argc == 1) {
-        printf("Usage: %s <code word>\n", argv[0]);
+    if (argc < 3) {
+        printf("Usage:  %s <gpio pin> <code word> [repeat count]\n", argv[0]);
+        printf("Sample: %s 0 010111110010101011100011 3\n", argv[0]);
         return -1;
     }
 
-    // Get code to send
-    char *codeWord = argv[1];
+    // Parse arguments
+    int pin = atoi(argv[1]);    // see https://projects.drogon.net/raspberry-pi/wiringpi/pins/
+    char *codeWord = argv[2];   // 24-bit binary code to send
+    int repeat = 1;             // number of times to repeat the message
+    if (argc >= 4) {
+        repeat = atoi(argv[3]);
+    }
 
     // Configure RCSwitch
     if (wiringPiSetup () == -1) return 1;
-    printf("sending code word [%s]\n", codeWord);
+    printf("sending code word [%s] via GPIO pin %i\n", codeWord, pin);
     RCSwitch mySwitch = RCSwitch();
     mySwitch.setRepeatTransmit(4);
-    mySwitch.enableTransmit(PIN);
+    mySwitch.enableTransmit(pin);
 
-    // Send first group
-    mySwitch.setProtocol(7); 
-    mySwitch.send(codeWord);
-
-    // Send second group
-    mySwitch.setProtocol(8);
-    mySwitch.send(codeWord);
+    // Send message
+    for (int i = 0; i < repeat; ++i) {
+        // Send first group
+        mySwitch.setProtocol(7); 
+        mySwitch.send(codeWord);
+        // Send second group
+        mySwitch.setProtocol(8);
+        mySwitch.send(codeWord);
+    }
 
     return 0;
 }

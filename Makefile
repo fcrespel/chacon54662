@@ -1,10 +1,9 @@
-# Defines the RPI variable which is needed by rc-switch/RCSwitch.h
-CXXFLAGS=-DRPI
+CXXFLAGS=-DRPI -DRCSwitchDisableReceiving -DDisableProtocolB
 
 all: send
 
 send: RCSwitch.o send.o
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) $+ -o $@ -lwiringPi
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $+ -o $@ -lwiringPi -lpthread -lcrypt -lrt
 
 clean:
 	$(RM) *.o send
